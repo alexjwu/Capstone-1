@@ -1,0 +1,40 @@
+---
+title: "Capstone Project Desc"
+author: "Alex Wu"
+date: "July 8, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Wine Procurement 
+
+1. What is the problem you want to solve?
+
+I want to open a wine boutique. I want to sell highly rated wine while maintaing a good cost to rating ratio. I want to see if that are correlation between ratings and :varietal, region, winery, and price to help predict which type of wines would give the greatest return.
+
+2. Who is your client and why do they care about this problem? In other words, what will your client DO or DECIDE based on your analysis that they wouldn’t have otherwise?
+
+Based on the assumption that rating is a predictor of demand. The findings of the analysis will determine which wines the client(me) will buy. I will procure the highest demand wines and wines with the greatest return on investment.
+
+3. What data are you going to use for this? How will you acquire this data
+
+Data that is publically available that contains ratings, price, region, variety, description, winery, etc.
+
+4. In brief, outline your approach to solving this problem
+
+Collet and wrangle data
+apply plotting 
+
+5. What are your deliverables? Typically, this would include code, along with a paper and/or a slide deck
+
+The R script
+Presentation that includes:
+Write up
+Charts
+Commentary
+
+
+
