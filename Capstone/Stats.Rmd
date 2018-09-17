@@ -1,0 +1,11 @@
+---
+title: "Statistics"
+author: "Alex Wu"
+date: "August 11, 2018"
+output: html_document
+---
+
+## R Markdown
+Majority of wine is priced from $1 to $30
+Points are normally distributed but shifted to the left.
+
