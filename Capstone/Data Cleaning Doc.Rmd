@@ -114,3 +114,5 @@ Distribution bell for wine type, price, variety, etc
 Cut by region sub cuts
 
 
+Exm <- WineList %>% group_by(price_cat)
+

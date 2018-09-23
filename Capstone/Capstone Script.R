@@ -66,13 +66,31 @@ WineList <- WineList %>% mutate("90" = ifelse(price > 80 & price <= 90, 1, 0))
 WineList <- WineList %>% mutate("100" = ifelse(price > 90 & price <= 100, 1, 0))
 WineList <- WineList %>% mutate("100+" = ifelse(price > 100, 1, 0))
 
+
+WineList <- WineList %>% mutate("price_cat" = ifelse(price > 0 & price <= 10, 1, 
+  ifelse(price > 10 & price <= 20, 10, ifelse(price > 20 & price <= 30, 20, 
+  ifelse(price > 30 & price <= 40, 30, ifelse(price > 40 & price <= 50, 40, 
+  ifelse(price > 50 & price <= 60, 50, ifelse(price > 60 & price <= 70, 60, 
+  ifelse(price > 70 & price <= 80, 70, ifelse(price > 80 & price <= 90, 80,
+  ifelse(price > 90 & price <= 100, 90, ifelse(price > 100, 1000, 0))))))))))))
+
+
+Grpby <- WineList %>% group_by(price_cat, WesternEurope, NorthAmerica, 
+  SouthAmerica, Africa, India, CentralAsia, NotA, MiddleEast, SouthEEurope, 
+  EasternEurope, SouthPacific, EastAsia, Red, White)
+
+WLbyR<- Grpby %>% summarise(p = mean(points))
+
 # New Table ---------------------------------------------------------- 
 WLR <- WineList[, c(3,4,11,12,13,14,15,16,17,18,19,20,21,22)]
+WLNA <- WineList[, c(3,4,11)]
+WLV <- WineList [c(3,4,6)]
 
 # Corrplot ---------------------------------------------------------- 
-M <- cor(WLR)
-corrplot(M, method = "circle")
+M <- cor(WLR, use = "complete.obs")
+corrplot(M, method = "number", type = "upper", col = "black")
 
+N <- cor(WLV)
 # Data Exploration ---------------------------------------------------------- 
 reg.pt.reg <- subset(WineList, select = c("points", "region"))
 summary(reg.pt.reg)
@@ -106,6 +124,7 @@ summary(sat.mod4)
 ggplot(WineList, aes(x=points, y=price)) + geom_point(aes(colour=region), size=2) + geom_smooth(aes(colour=region), se=FALSE, method="lm") + facet_grid(region~.) + scale_y_continuous(trans="log1p")
 
 
+ggplot(WineList, aes(x=price, y=points)) + geom_point() + geom_smooth(aes(colour=region), method="lm") + scale_y_continuous(trans="log1p") + scale_x_continuous(trans="log1p")
 
 ggplot(WineList, aes(points)) + geom_histogram()
 
