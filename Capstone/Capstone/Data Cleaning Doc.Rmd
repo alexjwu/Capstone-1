@@ -66,3 +66,63 @@ ggplot(WineList, aes(x=price)) + geom_histogram(aes(fill=variety), aes=0.4)
 ggplot(wine_data, aes(x=price)) + geom_histogram(aes(fill=vareity), aes=0.4)
 
 
+##### Notes 8/26
+Make new price a new column
+
+Use these for 
+cut()
+quantile()
+
+
+Writes description in RMD with the script code. But also helps with 
+
+2d density plot. It's a different function. Color by region, type, etc
+
+Next Part
+Exploratory Data parts
+Identify key predictive factors
+More visual models
+Correlation matrix - Coreplot. Show correlation values
+
+
+Scaling:
+Square root transform. Square root of the count of wine by region
+scale_y_continuous(trans="sqrt"
+
+Take a look at ggplot documentation.
+
+X = proportion of wine in total
+y = rating
+ggplot(new_df, aes(x=Prop, y=MeanPrice)) + geom_point(aes(shape=region, colour="region")
+
+
+
+Correlation
+dummy variable make the categories binary
+There is a package that can make it binary
+multiple columns of 1 or 0
+
+Z scores, median, 
+What does it mean
+
+Distribution bell for wine type, price, variety, etc
+
+
+
+
+
+Cut by region sub cuts
+
+
+Exm <- WineList %>% group_by(price_cat)
+
+
+subtract the mean from the points(mean center)
+or Z score
+
+
+
+Center price and points, plot region in correlation matrix.
+
+
+
