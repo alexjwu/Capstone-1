@@ -116,3 +116,13 @@ Cut by region sub cuts
 
 Exm <- WineList %>% group_by(price_cat)
 
+
+subtract the mean from the points(mean center)
+or Z score
+
+
+
+Center price and points, plot region in correlation matrix.
+
+dplyr::glimpse()
+
