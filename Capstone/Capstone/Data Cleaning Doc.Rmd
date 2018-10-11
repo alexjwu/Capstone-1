@@ -124,5 +124,5 @@ or Z score
 
 Center price and points, plot region in correlation matrix.
 
-
+dplyr::glimpse()
 
