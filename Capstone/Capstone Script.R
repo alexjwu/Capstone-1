@@ -13,14 +13,17 @@ library(ggplot2)
 library(corrplot)
 library(stringr)
 library(crunch)
-
+library(rstanarm)
+library(lme4)
+library(car)
+library(multcomp)
 # Data Exploration ---------------------------------------------------------- 
 WineList <- winemag_data_130k_v2
 WineList %>% summary(price)
 
 # Putting missing price as median price ----------------------------------------------------------no double quotes
 med_price <- median(WineList$price)
-WineList <- WineList %>% mutate(price = ifelse(is.na(price), 25, price))
+WineList <- WineList %>% mutate(price = ifelse(is.na(price), med_price, price))
 
 Regct <- count(WineList, vars = region, points)
 
@@ -47,12 +50,51 @@ WineList <- WineList %>% mutate(NotA = ifelse(is.na(region) , 1, ifelse(is.na(Ty
 WineList <- WineList %>% mutate(White = ifelse(Type == "White" , 1, ifelse(is.na(Type), 0, 0)))
 WineList <- WineList %>% mutate(Red = ifelse(Type == "Red" , 1, ifelse(is.na(Type),0,0)))
 
-WineList <- WineList %>% mutate("Mpoints" =  (points - mean(points)))
-WineList <- WineList %>% mutate("SDpoints" =  (points - mean(points)) /sd(points))
+WineList <- WineList %>% mutate("CenteredPoint" =  ((points)- mean(points, na.rm=TRUE)))
+WineList <- WineList %>% mutate("Z score points" =  (points - mean(points, na.rm=TRUE)) /sd(points, na.rm=TRUE))
 
-WineList <- WineList %>% mutate("Mprice" =  (price - mean(price)))
-WineList <- WineList %>% mutate("SDprice" =  (price - mean(price)) /sd(price))
+WineList <- WineList %>% mutate("CenteredPrice" =  (price - mean(price, na.rm=TRUE)))
+WineList <- WineList %>% mutate("Z score price" =  (price - mean(price, na.rm=TRUE)) /sd(price, na.rm=TRUE))
 
+
+# Modeling ---------------------------------------------
+
+centered_price_model_1_lme4 <-
+  glmer(CenteredPoint ~ CenteredPrice + (1 | region) + (1 | Type), # model formula
+        data=WineList, # data.frame that stores the data,
+        REML=FALSE)
+
+centered_price_model_2_lme4 <-
+  glmer(CenteredPoint ~ CenteredPrice + (1 | region), # model formula
+        data=WineList, # data.frame that stores the data,
+        REML=FALSE)
+
+centered_price_model_3_lme4 <-
+  glmer(CenteredPoint ~ CenteredPrice + (1 | Type), # model formula
+        data=WineList, # data.frame that stores the data,
+        REML=FALSE)
+
+#Price
+wine_price_model1<- lmer(price ~ Type + (1 | region) + (1 | points), data=WineList, REML=FALSE)
+summary(wine_price_model1)
+
+wine_price_model2<- lmer(price ~ region + (1 | Type) + (1 | points), data=WineList, REML=FALSE)
+summary(wine_price_model2)
+
+wine_price_model3<- lmer(price ~ points + (1 | region) + (1 | Type), data=WineList, REML=FALSE)
+summary(wine_price_model3)
+
+#Points
+wine_point_model1 <- lmer(points ~ Type + (1|price) + (1|region), data=WineList, REML=FALSE)
+summary(wine_point_model1)
+
+wine_point_model2 <- lmer(points ~ region + (1|price) + (1|Type), data=WineList, REML=FALSE)
+summary(wine_point_model2)
+
+wine_point_model3 <- lmer(points ~ price + (1|region) + (1|Type), data=WineList, REML=FALSE)
+summary(wine_point_model3)
+
+save.image("</R Homework/Capstone.rda")
 
 # Corrplot ---------------------------------------------------------- 
 M <- cor(WLR, use = "pairwise.or.complete")
@@ -86,40 +128,40 @@ ggplot(WineList, aes(x=Mprice, y=Mpoints)) +
     geom_point(aes(color=Type), size = 1, 
                data = subset(WineList, region %in% c("Western Europe"))) +
     geom_smooth(aes(colour=Type), method="lm", 
-                data = subset(WineList, region %in% c("Western Europe")))
-    + scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
+                data = subset(WineList, region %in% c("Western Europe"))) +
+    scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
 
 # North America
 ggplot(WineList, aes(x=Mprice, y=Mpoints)) + 
   geom_point(aes(color=Type), size = 1, 
              data = subset(WineList, region %in% c("North America"))) +
   geom_smooth(aes(colour=Type), method="lm", 
-              data = subset(WineList, region %in% c("North America")))
-+ scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
+              data = subset(WineList, region %in% c("North America"))) +
+  scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
 
 # South America
 ggplot(WineList, aes(x=Mprice, y=Mpoints)) + 
   geom_point(aes(color=Type), size = 1, 
              data = subset(WineList, region %in% c("South America"))) +
   geom_smooth(aes(colour=Type), method="lm", 
-              data = subset(WineList, region %in% c("South America")))
-+ scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
+              data = subset(WineList, region %in% c("South America"))) +
+  scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
 
 # Africa
 ggplot(WineList, aes(x=Mprice, y=Mpoints)) + 
   geom_point(aes(color=Type), size = 1, 
              data = subset(WineList, region %in% c("Africa"))) +
   geom_smooth(aes(colour=Type), method="lm", 
-              data = subset(WineList, region %in% c("Africa")))
-+ scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
+              data = subset(WineList, region %in% c("Africa"))) +
+  scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
 
 # Asia
 ggplot(WineList, aes(x=Mprice, y=Mpoints)) + 
   geom_point(aes(color=Type), size = 1, 
              data = subset(WineList, region %in% c("Asia"))) +
   geom_smooth(aes(colour=Type), method="lm", 
-              data = subset(WineList, region %in% c("Asia")))
-+ scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
+              data = subset(WineList, region %in% c("Asia"))) +
+  scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
 
 
 # Middle East
@@ -127,29 +169,35 @@ ggplot(WineList, aes(x=Mprice, y=Mpoints)) +
   geom_point(aes(color=Type), size = 1, 
              data = subset(WineList, region %in% c("Middle East"))) +
   geom_smooth(aes(colour=Type), method="lm", 
-              data = subset(WineList, region %in% c("Middle East")))
-+ scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
+              data = subset(WineList, region %in% c("Middle East"))) +
+  scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
 
 # Eastern Europe
 ggplot(WineList, aes(x=Mprice, y=Mpoints)) + 
   geom_point(aes(color=Type), size = 1, 
              data = subset(WineList, region %in% c("Eastern Europe"))) +
   geom_smooth(aes(colour=Type), method="lm", 
-              data = subset(WineList, region %in% c("Eastern Europe")))
-+ scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
+              data = subset(WineList, region %in% c("Eastern Europe"))) +
+  scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
 
 # South Pacific
 ggplot(WineList, aes(x=Mprice, y=Mpoints)) + 
   geom_point(aes(color=Type), size = 1, 
              data = subset(WineList, region %in% c("South Pacific"))) +
   geom_smooth(aes(colour=Type), method="lm", 
-              data = subset(WineList, region %in% c("South Pacific")))
-+ scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
+              data = subset(WineList, region %in% c("South Pacific"))) +
+  scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
 
 # South Eastern Europe
 ggplot(WineList, aes(x=Mprice, y=Mpoints)) + 
   geom_point(aes(color=Type), size = 1, 
              data = subset(WineList, region %in% c("South Eastern Europe"))) +
   geom_smooth(aes(colour=Type), method="lm", 
-              data = subset(WineList, region %in% c("South Eastern Europe")))
-+ scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
+              data = subset(WineList, region %in% c("South Eastern Europe"))) +
+  scale_y_continuous(trans = "log1p") + scale_x_continuous(trans="log1p")
+
+
+
+Instead of subset(
+WineList %>% dplyr::filter(region == "Western Europe") %>% ggplot(...)
+)
